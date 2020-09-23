@@ -1,0 +1,10 @@
+.table{
+    border: 1px solid black;
+}
+
+.cell {
+    border: 1px solid black;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+}
