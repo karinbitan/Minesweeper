@@ -8,10 +8,11 @@ function renderBoard(board) {
         var row = board[i];
         for (var j = 0; j < row.length; j++) {
             var posStr = i + '-' + j;
+            var openClass = gBoard[i][j].isShown ? 'open' : '';
             var cellClass = 'cell cell' + i + '-' + j;
 
             var cellValue = EMPTY;
-            var count = setMinesNegsCount(board, i, j);
+            var count = board[i][j].minesAroundCount;
 
 
             if (!board[i][j].isShown) {
@@ -19,17 +20,16 @@ function renderBoard(board) {
             }
             else {
                 if (count === 0) {
-                    count = EMPTY;
+                    cellValue = EMPTY
+                } else if (board[i][j].isMine) {
+                    cellValue = MINE;
+                } else {
+                    cellValue = count;
                 }
-                cellValue = count;
-            }
-            if (board[i][j].isMine) {
-                if(board[i][j].isShown)
-                cellValue = MINE;
             }
 
 
-            strHtml += `<td onclick="cellClicked(this)" data-pos="${posStr}" class="${cellClass}">${cellValue}</td>`;
+            strHtml += `<td onclick="cellClicked(this, ${i}, ${j})" data-pos="${posStr}" class="${cellClass} ${openClass}">${cellValue}</td>`;
 
         }
         strHtml += '</tr>';

@@ -6,14 +6,17 @@ const EMPTY = '';
 var gBoard;
 
 var gGame = {
-    isOn: false,
+    isOn: true,
     shownCount: 0,
     markedCount: 0,
     secsPassed: 0
 }
 
-// minesAroundCount: 4,
-// isMine: false,
+var gLevel = {
+    SIZE: 4,
+    MINES: 2
+};
+
 // isMarked: true
 
 function init() {
@@ -39,8 +42,11 @@ function bulidBoard(size) {
     for (var i = 0; i < size; i++) {
         for (var j = 0; j < size; j++) {
             var cell = board[i][j];
+            if (cell.isMine === true) {
+                cell.minesAroundCount = -1;
+                continue;
+            }
             var count = setMinesNegsCount(board, i, j);
-            if (cell.isMine === true) continue;
             cell.minesAroundCount = count;
         }
     }
@@ -63,13 +69,16 @@ function setMinesNegsCount(board, rowIdx, colIdx) {
     return count;
 }
 
-// function cellClicked(elCell) {
-//     if (!gGame.isOn) return;
-//     if (elCell.isMine) continue;
-//     if(elCell.innerText = EMPTY){
-
-//     }
-//     if(elCell.innerText = )
-
-// }
+function cellClicked(elCell, i, j) {
+    if (!gGame.isOn) return;
+    if (!gBoard[i][j].isShown) {
+        gBoard[i][j].isShown = true;
+        renderBoard(gBoard);
+    }
+    if(gBoard[i][j].isMine){
+        console.log('Game over');
+        gGame.isOn = false;
+        alert('Game over!');
+    }
+}
 
