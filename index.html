@@ -7,9 +7,18 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body onload="init()">
-    <table class="table">
+    <header>
+    <h1>Minesweeper Game!</h1>
+    <h2>Choose level:</h2>
+    <p class="levels"><span onclick="changeLevel(4, 2)">Easy</span> |<span onclick="changeLevel(8, 12)"> Medium</span> |<span onclick="changeLevel(12, 30)"> Expert</span></p>
+    <img onclick="resetGame()" class="smiley" src="icons/smiley1.png" />
+    <p>Time: <span class="stop-watch">0</span></p>
+    </header>
+    <h1 class="game-over">Game Over!</h1>
+    <table class="table" id="mineSweeper">
         <tbody class="board"></tbody>
     </table>
+
     <script src="js/utils.js"></script>
     <script src="js/game.js"></script>
 </body>

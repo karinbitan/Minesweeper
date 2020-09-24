@@ -1,5 +1,16 @@
+/* body {
+    background-color: rgb(191, 210, 224);
+} */
+
+header {
+    margin: auto;
+    width: 400px;
+    text-align: center;
+}
+
 .table {
     border: 1px solid black;
+    margin: auto;
 }
 
 .cell {
@@ -11,4 +22,32 @@
 
 .open {
     background-color: gray;
+}
+
+.levels span{
+    cursor: pointer;
+}
+
+.mine{
+    border: red 1px solid;
+}
+
+.smiley {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+
+.game-over {
+    display: none;
+    text-align: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+.reset-game {
+    display: none;
+    margin: auto;
+    width: 100px;
 }

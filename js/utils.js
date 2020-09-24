@@ -9,6 +9,7 @@ function renderBoard(board) {
         for (var j = 0; j < row.length; j++) {
             var posStr = i + '-' + j;
             var openClass = gBoard[i][j].isShown ? 'open' : '';
+            var mineClass = gBoard[i][j].isMine ? 'mine' : '';
             var cellClass = 'cell cell' + i + '-' + j;
 
             var cellValue = EMPTY;
@@ -17,6 +18,11 @@ function renderBoard(board) {
 
             if (!board[i][j].isShown) {
                 cellValue = EMPTY;
+                if (board[i][j].isMarked) {
+                    cellValue = FLAG;
+                } else {
+                    cellValue = EMPTY;
+                }
             }
             else {
                 if (count === 0) {
@@ -38,11 +44,6 @@ function renderBoard(board) {
     elBoard.innerHTML = strHtml;
 }
 
-function renderCell(location, value) {
-    var cellSelector = '.' + getClassName(location)
-    var elCell = document.querySelector(cellSelector);
-    elCell.innerHTML = value;
-}
 
 // Returns the class name for a specific cell
 function getClassName(location) {
@@ -51,10 +52,19 @@ function getClassName(location) {
 }
 
 
-function getPosFromElTd(elTd) {
-    var dataSet = elTd.dataset;
-    var posStr = dataSet.pos;
-    var splitted = posStr.split('-');
-    var pos = { i: +splitted[0], j: +splitted[1] };
-    return pos;
+function getPosFromElTd(elm) {
+    var pos = elm.getAttribute('data-pos') || elm.parentElement.getAttribute('data-pos');
+    if (!pos) return null;
+    var splited = pos.split('-');
+    return splited;
+}
+
+function getRandomIntInclusive(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// location such as: {i: 2, j: 7}
+function renderCell(location, value) {
+    var elCell = document.querySelector(`.cell${location.i}-${location.j}`);
+    elCell.innerHTML = value
 }
