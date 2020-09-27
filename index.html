@@ -1,25 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minesweeper</title>
     <link rel="stylesheet" href="css/main.css">
 </head>
+
 <body onload="init()">
     <header>
-    <h1>Minesweeper Game!</h1>
-    <h2>Choose level:</h2>
-    <p class="levels"><span onclick="changeLevel(4, 2)">Easy</span> |<span onclick="changeLevel(8, 12)"> Medium</span> |<span onclick="changeLevel(12, 30)"> Expert</span></p>
-    <img onclick="resetGame()" class="smiley" src="icons/smiley1.png" />
-    <p>Time: <span class="stop-watch">0</span> | Lives left: <span class="lives"></span></p>
+        <h1>Minesweeper Game!</h1>
+        <h2>Choose level:</h2>
+        <p class="levels"><span onclick="changeLevel(4, 2)">Easy</span> |<span onclick="changeLevel(8, 12)">
+                Medium</span> |<span onclick="changeLevel(12, 30)"> Expert</span></p>
+        <img onclick="resetGame()" class="smiley" src="icons/smiley1.png" />
+
+        <p><strong>Time:</strong> <span class="stop-watch">0</span> | <strong>Lives left:</strong> <span
+                class="lives"></span></p>
+           <p> <strong>Hints:</strong>
+            <img onclick="getHint(this)" class="hint" src="icons/hint.jpg" />
+            <img onclick="getHint(this)" class="hint" src="icons/hint.jpg" />
+            <img onclick="getHint(this)" class="hint" src="icons/hint.jpg" /> |
+        <span class="safe-click" onclick="safeClick()"><strong>Safe click </strong><span class="safe-click-num">3</span> left</p>
     </header>
-    <h1 class="game-over">Game Over!</h1>
+    <!-- <div class="game-over">
+        <h1>Game Over!</h1>
+        <p onclick="showGameOverMsg()">Click to show game</p>
+    </div>
+    <div class="win-msg">
+        <h1>You win!! Good game :)</h1>
+        <p onclick="showGameOverMsg()">Click to show game</p>
+    </div> -->
     <table class="table" id="mineSweeper">
         <tbody class="board"></tbody>
     </table>
+    <div class="best-score-box">
+        <h3>Best score:</h3>
+        <p><span class="best-score"></span> seconds</p>
+    </div>
 
     <script src="js/utils.js"></script>
     <script src="js/game.js"></script>
 </body>
+
 </html>

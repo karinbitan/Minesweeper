@@ -9,11 +9,20 @@ function renderBoard(board) {
         for (var j = 0; j < row.length; j++) {
             var posStr = i + '-' + j;
             var openClass = gBoard[i][j].isShown ? 'open' : '';
-            var mineClass = gBoard[i][j].isMine ? 'mine' : '';
+            var mineClass = gBoard[i][j].isMine && gBoard[i][j].isShown ? 'mine' : '';
+            var safeClickClass = gBoard[i][j].isSafe && !gBoard[i][j].isShown  ? 'safe' : '';
             var cellClass = 'cell cell' + i + '-' + j;
 
             var cellValue = EMPTY;
             var count = board[i][j].minesAroundCount;
+            var countClass = null;
+            if (count === 1){
+                countClass = 'blue';
+            } else if (count === 2){
+                countClass = 'green';
+            } else if (count === 3){
+                countClass = 'red';
+            }
 
 
             if (!board[i][j].isShown) {
@@ -35,7 +44,8 @@ function renderBoard(board) {
             }
 
 
-            strHtml += `<td onclick="cellClicked(this, ${i}, ${j})" data-pos="${posStr}" class="${cellClass} ${openClass}">${cellValue}</td>`;
+            strHtml += `<td onclick="cellClicked(this, ${i}, ${j})" data-pos="${posStr}"
+             class="${cellClass} ${openClass} ${mineClass} ${countClass} ${safeClickClass}">${cellValue}</td>`;
 
         }
         strHtml += '</tr>';
@@ -59,9 +69,13 @@ function getPosFromElTd(elm) {
     return splited;
 }
 
-function getRandomIntInclusive(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+
+function getRandomInt(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
+
 
 // location such as: {i: 2, j: 7}
 function renderCell(location, value) {

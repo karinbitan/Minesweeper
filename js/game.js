@@ -1,11 +1,13 @@
 'use strict';
 
-const MINE = '<img width="40" height="40" src="icons/mine.png"/>';
+const MINE = '<img width="16" height="16" src="icons/mine.png"/>';
 const EMPTY = '';
-const FLAG = '<img width="40" height="40" src="icons/flag-red-icon.png"/>'
+const FLAG = '<img width="16" height="16" src="icons/flag-red-icon.png"/>'
 
 var startTime = 0;
 var clockInterval = null;
+var bestScore = localStorage.getItem('bestScore');
+document.querySelector('.best-score').innerText = Math.floor(bestScore / 1000);
 
 var gBoard;
 
@@ -15,7 +17,11 @@ var gGame = {
     markedCount: 0,
     secsPassed: 0,
     minesPositions: [],
-    lives: 3
+    isFirstClick: false,
+    lives: 3,
+    hintsCount: 3,
+    isHintOn: false,
+    safeClickCount: 3
 }
 
 var gLevel = {
@@ -45,7 +51,10 @@ function bulidBoard(size, minesNum) {
         for (var j = 0; j < size; j++) {
             board[i][j] = {
                 isShown: false,
-                isMine: false
+                isMine: false,
+                isShownByHint: false,
+                isMarked: false,
+                isSafe: false
             };
 
         }
@@ -71,8 +80,8 @@ function bulidBoard(size, minesNum) {
 function fillMines(board, minesNum) {
     var mine = 0;
     while (mine < minesNum) {
-        var randI = getRandomIntInclusive(0, board.length - 1);
-        var randJ = getRandomIntInclusive(0, board.length - 1);
+        var randI = getRandomInt(0, board.length);
+        var randJ = getRandomInt(0, board.length);
         if (!board[randI][randJ].isMine) {
             board[randI][randJ].isMine = true;
             mine++;
@@ -87,8 +96,6 @@ function fillMines(board, minesNum) {
 }
 
 function changeLevel(size, mines) {
-    startTime = Date.now();
-    clockInterval = setInterval(stopWatch, 1000);
     gLevel.SIZE = size;
     gLevel.MINES = mines;
     resetGame();
@@ -113,6 +120,9 @@ function cellClicked(elCell, i, j) {
     if (!gGame.isOn) {
         return;
     }
+    
+    gGame.isFirstClick = true;
+
     if (gBoard[i][j].isMarked) return;
     if (gBoard[i][j].isShown) return;
 
@@ -120,15 +130,22 @@ function cellClicked(elCell, i, j) {
         startTime = Date.now();
         clockInterval = setInterval(stopWatch, 1000);
     }
+    if (gGame.isHintOn) {
+        showHint(i, j);
+        return;
+    }
 
     if (gBoard[i][j].isMine) {
         if (gGame.lives > 1) {
             gGame.lives--;
-            gBoard.shownCount -= 1;
+            gGame.shownCount -= 1;
+            var audioLostLife = new Audio('sounds/lost_life.mp3');
+            audioLostLife.play();
             setTimeout(function () {
                 gBoard[i][j].isShown = false;
                 renderBoard(gBoard);
             }, 2000)
+
             document.querySelector('.lives').innerHTML = gGame.lives;
         }
         else {
@@ -139,15 +156,17 @@ function cellClicked(elCell, i, j) {
             return;
         }
     }
-
     if (!gBoard[i][j].isShown) {
         gBoard[i][j].isShown = true;
         gGame.shownCount += 1;
         renderBoard(gBoard);
     }
+
+
     if (gBoard[i][j].minesAroundCount === 0) {
         expandShown(gBoard, i, j)
     }
+
     checkIfWin();
 }
 
@@ -173,25 +192,15 @@ function cellMarked(elCell) {
 }
 
 
-function expandShown(board, rowIdx, colIdx) {
-    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
-        if (i < 0 || i > board.length - 1) continue;
-        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
-            if (j < 0 || j > board.length - 1 || i === rowIdx && j === colIdx) continue;
-            if (board[i][j].isMarked || board[i][j].isMine || board[i][j].isShown) continue;
-            board[i][j].isShown = true;
-            gGame.shownCount++;
-        }
-    }
-    renderBoard(gBoard);
-}
-
 
 function gameOver() {
-    var gameOverMsg = document.querySelector('.game-over');
-    gameOverMsg.style.display = "block";
-    var smileyImg = document.querySelector('.smiley');
-    smileyImg.src = "icons/sad-smiley.png";
+
+    // setTimeout(function () {
+    //     document.querySelector('.game-over').style.display = "block";
+    // }, 1000)
+    document.querySelector('.smiley').src = "icons/sad-smiley.png";
+    var audioGameOver = new Audio('sounds/game_over.mp3');
+    audioGameOver.play();
     gGame.isOn = false;
     clearStopWatch();
 
@@ -201,18 +210,25 @@ function gameOver() {
     }
     renderBoard(gBoard);
 }
-// if all mines are marked and all cells are shown
+
+
+// function showGameOverMsg() {
+//     document.querySelector('.game-over').style.display = "none";
+//     document.querySelector('.win-msg').style.display = "none";
+// }
 
 
 function checkIfWin() {
     if ((gGame.shownCount === (gLevel.SIZE * gLevel.SIZE) - gLevel.MINES) && (gLevel.MINES === gGame.markedCount)) {
-        alert('You win!')
+        // document.querySelector('.win-msg').style.display = "block";
         var smileyImg = document.querySelector('.smiley');
+        var audioWin = new Audio('sounds/win_sound.mp3');
+        audioWin.play();
         smileyImg.src = "icons/cool-icon.png";
+        saveBestScore(startTime);
         clearStopWatch();
     }
 }
-
 
 
 function resetGame() {
@@ -222,15 +238,106 @@ function resetGame() {
         markedCount: 0,
         secsPassed: 0,
         minesPositions: [],
-        lives: 3
+        lives: 3,
+        hintsCount: 3,
+        safeClickCount: 3
     }
     clearStopWatch();
-    var gameOverMsg = document.querySelector('.game-over');
-    gameOverMsg.style.display = "none";
-    var smileyImg = document.querySelector('.smiley');
-    smileyImg.src = "icons/smiley1.png";
-    document.querySelector('.stop-watch').innerHTML = 0;
+    // var gameOverMsg = document.querySelector('.game-over');
+    // gameOverMsg.style.display = 'none';
+    document.querySelector('.smiley').src = 'icons/smiley1.png';
     init();
+}
+
+
+function getHint(elImg) {
+    if (startTime !== 0) {
+        if (!gGame.isHintOn) {
+            elImg.src = 'icons/hint-use.jpg';
+            elImg.classList.add('used');
+            gGame.isHintOn = true;
+            gGame.hintsCount -= 1;
+        } else if (gGame.isHintOn) {
+            elImg.src = 'icons/hint.jpg';
+            elImg.classList.remove('used');
+            gGame.isHintOn = false;
+            gGame.hintsCount += 1;
+        }
+    }
+}
+
+function expandShown(board, rowIdx, colIdx, hintDisabled = false) {
+    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+        if (i < 0 || i > board.length - 1) continue;
+        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+            if (j < 0 || j > board.length - 1 || i === rowIdx && j === colIdx) continue;
+            if (!gGame.isHintOn) {
+                if (board[i][j].isMarked || board[i][j].isMine || board[i][j].isShown) continue;
+                board[i][j].isShown = true;
+                gGame.shownCount++;
+            } else {
+                if (!hintDisabled) {
+                    if (board[i][j].isShown === false) {
+                        board[i][j].isShown = true;
+                        board[i][j].isShownByHint = true;
+                    }
+                } else {
+                    if (board[i][j].isShownByHint === true) {
+                        board[i][j].isShown = false;
+                        board[i][j].isShownByHint = false;
+                    }
+                }
+
+            }
+        }
+        renderBoard(gBoard);
+    }
+}
+
+function showHint(i, j) {
+    gBoard[i][j].isShown = true;
+    expandShown(gBoard, i, j);
+    setTimeout(function () {
+        gBoard[i][j].isShown = false;
+        expandShown(gBoard, i, j, true);
+        renderBoard(gBoard);
+        gGame.isHintOn = false;
+        document.querySelector('.hint.used').style.visibility = "hidden";
+        document.querySelector('.hint.used').classList.remove('used');
+    }, 1000)
+}
+
+function safeClick() {
+    if (startTime !== 0) {
+        var randI = getRandomInt(0, gLevel.SIZE);
+        var randJ = getRandomInt(0, gLevel.SIZE);
+        if (gGame.safeClickCount > 0) {
+            if (!gBoard[randI][randJ].isMine && !gBoard[randI][randJ].isMarked && !gBoard[randI][randJ].isShown) {
+                gBoard[randI][randJ].isSafe = true;
+                gGame.safeClickCount -= 1;
+                renderBoard(gBoard);
+                setTimeout(function () {
+                    gBoard[randI][randJ].isSafe = false;
+                    renderBoard(gBoard);
+                    document.querySelector('.safe-click-num').innerText -= 1;
+                }, 2000)
+            }
+        } else {
+            return;
+        }
+    }
+}
+
+function saveBestScore(startTime) {
+    var endTime = Date.now() - startTime;
+    bestScore = localStorage.getItem('bestScore');
+    if (!bestScore) {
+        localStorage.setItem('bestScore', endTime);
+        document.querySelector('.best-score').innerText = Math.floor(endTime / 1000);
+    } else if (endTime < bestScore) {
+        localStorage.setItem('bestScore', endTime);
+        document.querySelector('.best-score').innerText = Math.floor(endTime / 1000);
+    }
 }
 
 function stopWatch() {
@@ -243,4 +350,5 @@ function clearStopWatch() {
     clearInterval(clockInterval);
     clockInterval = null;
     startTime = 0;
+    document.querySelector('.stop-watch').innerHTML = 0;
 }
