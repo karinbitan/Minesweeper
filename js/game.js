@@ -18,12 +18,14 @@ var gGame = {
     lives: 3,
     hintsCount: 3,
     isHintOn: false,
-    safeClickCount: 3
+    safeClickCount: 3,
+    manual: false
 }
 
 var gLevel = {
     SIZE: 4,
-    MINES: 2
+    MINES: 2,
+    LEVEL_NAME: 'Easy'
 };
 
 
@@ -39,6 +41,7 @@ function init() {
     console.table(gBoard);
     renderBoard(gBoard);
     document.querySelector('.lives').innerHTML = gGame.lives;
+    showBestScore();
 }
 
 function bulidBoard(size, minesNum, cellWithoutMine) {
@@ -56,8 +59,11 @@ function bulidBoard(size, minesNum, cellWithoutMine) {
 
         }
     }
-
-    fillMines(board, minesNum, cellWithoutMine);
+    if (!gGame.manual) {
+        fillRandomMines(board, minesNum, cellWithoutMine);
+    } else {
+        fillManualMines(board);
+    }
 
 
     for (var i = 0; i < size; i++) {
@@ -74,7 +80,7 @@ function bulidBoard(size, minesNum, cellWithoutMine) {
     return board;
 }
 
-function fillMines(board, minesNum, cellWithoutMine) {
+function fillRandomMines(board, minesNum, cellWithoutMine) {
     var mine = 0;
     while (mine < minesNum) {
         var randI = getRandomInt(0, board.length);
@@ -97,9 +103,20 @@ function fillMines(board, minesNum, cellWithoutMine) {
     }
 }
 
-function changeLevel(size, mines) {
+
+function fillManualMines(board) {
+    for (var i = 0; i < gGame.minesPositions.length; i++) {
+        var currMine = gGame.minesPositions[i];
+        board[currMine.row][currMine.col].isMine = true;
+    }
+}
+
+
+function changeLevel(size, mines, levelName) {
     gLevel.SIZE = size;
     gLevel.MINES = mines;
+    gLevel.LEVEL_NAME = levelName;
+    document.querySelector('.manual').innerText = 'Click here for manual mode';
     resetGame();
 }
 
@@ -122,6 +139,33 @@ function cellClicked(elCell, i, j) {
     if (!gGame.isOn) {
         return;
     }
+
+
+    if (gGame.manual && gGame.minesPositions.length !== gLevel.MINES) {
+        gGame.minesPositions.push(
+            {
+                row: i,
+                col: j
+            }
+        );
+        gBoard[i][j].isMine = true;
+        gBoard[i][j].isShown = true;
+        renderBoard(gBoard);
+        if (gGame.minesPositions.length == gLevel.MINES) {
+            setTimeout(function () {
+                for (let i = 0; i < gGame.minesPositions.length; i++) {
+                    gBoard[gGame.minesPositions[i].row][gGame.minesPositions[i].col].isShown = false;
+                }
+                document.querySelector('.manual-use').style.display = "none";
+                document.querySelector('.manual').innerText = 'You filled the mines! You can play :)'
+                document.querySelector('.manual').style.display = "block";
+                renderBoard(gBoard);
+            }, 1000)
+        }
+        return;
+    }
+
+
 
 
     if (gBoard[i][j].isMarked) return;
@@ -147,6 +191,7 @@ function cellClicked(elCell, i, j) {
             setTimeout(function () {
                 gBoard[i][j].isShown = false;
                 renderBoard(gBoard);
+
             }, 2000)
 
             document.querySelector('.lives').innerHTML = gGame.lives;
@@ -196,13 +241,15 @@ function cellMarked(elCell) {
 }
 
 
+function manualMode(el) {
+    if (gGame.manual) return
+    gGame.manual = true;
+    el.style.display = "none";
+    document.querySelector('.manual-use').style.display = "block";
+}
 
 
 function gameOver() {
-
-    // setTimeout(function () {
-    //     document.querySelector('.game-over').style.display = "block";
-    // }, 1000)
     document.querySelector('.smiley').src = "icons/sad-smiley.png";
     var audioGameOver = new Audio('sounds/game_over.mp3');
     audioGameOver.play();
@@ -217,20 +264,14 @@ function gameOver() {
 }
 
 
-// function showGameOverMsg() {
-//     document.querySelector('.game-over').style.display = "none";
-//     document.querySelector('.win-msg').style.display = "none";
-// }
-
-
 function checkIfWin() {
-    if ( (gGame.shownCount == (gLevel.SIZE * gLevel.SIZE) - gLevel.MINES) && (gLevel.MINES == gGame.markedCount) ) {
-        // document.querySelector('.win-msg').style.display = "block";
+    if ((gGame.shownCount == (gLevel.SIZE * gLevel.SIZE) - gLevel.MINES) && (gLevel.MINES == gGame.markedCount)) {
         var smileyImg = document.querySelector('.smiley');
         var audioWin = new Audio('sounds/win_sound.mp3');
         audioWin.play();
         smileyImg.src = "icons/cool-icon.png";
         saveBestScore(startTime);
+        showBestScore();
         clearStopWatch();
     }
 }
@@ -248,8 +289,6 @@ function resetGame() {
         safeClickCount: 3
     }
     clearStopWatch();
-    // var gameOverMsg = document.querySelector('.game-over');
-    // gameOverMsg.style.display = 'none';
     document.querySelector('.smiley').src = 'icons/smiley1.png';
     init();
 }
@@ -335,15 +374,19 @@ function safeClick() {
 
 function saveBestScore(startTime) {
     var endTime = Date.now() - startTime;
-    var bestScore = localStorage.getItem('bestScore');
+    var bestScore = localStorage.getItem(`best-score-${gLevel.LEVEL_NAME}`);
     if (!bestScore) {
-        localStorage.setItem('bestScore', endTime);
-        document.querySelector('.best-score').innerText = Math.floor(endTime / 1000);
+        localStorage.setItem(`best-score-${gLevel.LEVEL_NAME}`, endTime);
     } else if (endTime < bestScore) {
-        localStorage.setItem('bestScore', endTime);
-        document.querySelector('.best-score').innerText = Math.floor(endTime / 1000);
+        localStorage.setItem(`best-score-${gLevel.LEVEL_NAME}`, endTime);
     }
 }
+
+function showBestScore() {
+    var bestScore = localStorage.getItem(`best-score-${gLevel.LEVEL_NAME}`);
+    document.querySelector('.best-score').innerHTML = Math.floor(bestScore / 1000);
+}
+
 
 function stopWatch() {
     var currTime = Date.now() - startTime;

@@ -12,9 +12,12 @@
     <header>
         <h1>Minesweeper Game!</h1>
         <h2>Choose level:</h2>
-        <p class="levels"><span onclick="changeLevel(4, 2)">Easy</span> |<span onclick="changeLevel(8, 12)">
-                Medium</span> |<span onclick="changeLevel(12, 30)"> Expert</span></p>
-                <!-- <p>Click <span class="manual" onclick="manualMode()">here</span> for manual mode</p> -->
+        <p class="levels"><span onclick="changeLevel(4, 2, 'Easy')">Easy</span> |
+            <span onclick="changeLevel(8, 12, 'Medium')">
+                Medium</span> |<span onclick="changeLevel(12, 30, 'Expert')"> Expert</span></p>
+                <p class="manual" onclick="manualMode(this)">Click here for manual mode</p>
+                <p class="manual-use">You are on manual mood. You can click on board to fill mines</p>
+                
         <img onclick="resetGame()" class="smiley" src="icons/smiley1.png" />
         
 
@@ -24,17 +27,9 @@
             <img onclick="getHint(this)" class="hint" src="icons/hint.jpg" />
             <img onclick="getHint(this)" class="hint" src="icons/hint.jpg" />
             <img onclick="getHint(this)" class="hint" src="icons/hint.jpg" /> |
-        <span class="safe-click" onclick="safeClick()"><strong>Safe click </strong>
+        <span class="safe-click" onclick="safeClick()"><span></span><strong>Safe click</strong></span>
             <span class="safe-click-num">3</span> left</p>
     </header>
-    <!-- <div class="game-over">
-        <h1>Game Over!</h1>
-        <p onclick="showGameOverMsg()">Click to show game</p>
-    </div>
-    <div class="win-msg">
-        <h1>You win!! Good game :)</h1>
-        <p onclick="showGameOverMsg()">Click to show game</p>
-    </div> -->
     <table class="table" id="mineSweeper">
         <tbody class="board"></tbody>
     </table>

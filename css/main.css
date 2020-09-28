@@ -49,12 +49,31 @@ header .h1 {
     cursor: pointer;
 }
 
+.safe-click:hover {
+    text-decoration: underline;
+}
+
 .levels span {
     cursor: pointer;
 }
 
+.levels span:hover {
+    font-weight: bold;
+}
+
 .manual {
     cursor: pointer;
+}
+
+.manual:hover {
+    font-weight: bold;
+}
+
+.manual-use {
+    display: none;
+    color: black;
+    background-color: red;
+    font-size: large;
 }
 
 .mine {
@@ -74,33 +93,10 @@ header .h1 {
     cursor: pointer;
 }
 
-/* .game-over {
-    display: none;
-    text-align: center;
-    position: absolute;
-    left: 0;
-    right: 0;
-    border: indigo 2px solid;
-    width: 200px;
-    margin: auto;
-    background-color: rgba(255, 255, 255, 0.9);
+.hint:hover {
+    width: 30px;
+    height: 30px;
 }
-
-.game-over p {
-    cursor: pointer;
-}
-
-.win-msg {
-    display: none;
-    text-align: center;
-    position: absolute;
-    left: 0;
-    right: 0;
-    border: indigo 2px solid;
-    width: 300px;
-    margin: auto;
-    background-color: rgba(255, 255, 255, 0.9);
-} */
 
 .reset-game {
     display: none;

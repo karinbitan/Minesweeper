@@ -34,10 +34,10 @@ function renderBoard(board) {
                 }
             }
             else {
-                if (count === 0) {
-                    cellValue = EMPTY
-                } else if (board[i][j].isMine) {
+                if (board[i][j].isMine) {
                     cellValue = MINE;
+                } else if (count === 0) {
+                    cellValue = EMPTY
                 } else {
                     cellValue = count;
                 }
@@ -76,9 +76,3 @@ function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
-
-// location such as: {i: 2, j: 7}
-function renderCell(location, value) {
-    var elCell = document.querySelector(`.cell${location.i}-${location.j}`);
-    elCell.innerHTML = value
-}
