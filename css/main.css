@@ -53,6 +53,10 @@ header .h1 {
     cursor: pointer;
 }
 
+.manual {
+    cursor: pointer;
+}
+
 .mine {
     background-color: red;
 }
@@ -61,6 +65,7 @@ header .h1 {
     width: 25px;
     height: 25px;
     cursor: pointer;
+    position: relative;
 }
 
 .hint {
